@@ -8,6 +8,7 @@ const s3EventHandler = async (event: S3Event) => {
     `File uploaded, do your thang with event ${JSON.stringify(event)}`
   );
 
+  //TODO process CSV and call insertData (fast-csv looks good)
   var ddb = new AWS.DynamoDB({ apiVersion: "2012-08-10" });
 
   await insertData(ddb, "ItemY", "value1", "value2");
@@ -15,21 +16,19 @@ const s3EventHandler = async (event: S3Event) => {
   return formatJSONResponse({
     message: `S3 event handler invoked with ${event}`,
   });
-
-
 };
 
-  async function insertData(ddb, key, value1, value2) {
-    const putParams = {
-      TableName: process.env.RESOURCE_TABLE,
-      Item: {
-        id: { S: key },
-        ID1: { S: value1 },
-        ID2: { S: value2 },
-      },
-    };
+async function insertData(ddb, key, value1, value2) {
+  const putParams = {
+    TableName: process.env.RESOURCE_TABLE,
+    Item: {
+      id: { S: key },
+      ID1: { S: value1 },
+      ID2: { S: value2 },
+    },
+  };
 
-    await ddb.putItem(putParams).promise();
-  }
+  await ddb.putItem(putParams).promise();
+}
 
 export const main = middyfy(s3EventHandler);
