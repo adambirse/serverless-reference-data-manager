@@ -8,6 +8,12 @@ const s3EventHandler = async (event: S3Event) => {
     `File uploaded, do your thang with event ${JSON.stringify(event)}`
   );
 
+  for (const record of event.Records) {
+    const key: string = record.s3.object.key;
+    console.log(" File name -->  ", key);
+    console.log(record);
+  }
+
   //TODO process CSV and call insertData (fast-csv looks good)
   var ddb = new AWS.DynamoDB({ apiVersion: "2012-08-10" });
 
