@@ -1,9 +1,9 @@
 import { middyfy } from "@libs/lambda";
-var AWS = require("aws-sdk");
+import S3 from "aws-sdk/clients/s3";
 
 import { S3Event } from "aws-lambda";
 
-const s3 = new AWS.S3({});
+const s3: S3 = new S3({ apiVersion: "2006-03-01", region: "eu-west-1" });
 
 const s3EventHandler = async (event: S3Event) => {
   for (const record of event.Records) {
