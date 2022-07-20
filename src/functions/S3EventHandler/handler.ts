@@ -53,12 +53,16 @@ const parseCSV = async (csvStream: Readable) => {
       })
       .on("end", async () => {
         if (parsedData.length > 0) {
-          console.log("Data received");
-          console.log(parsedData);
+          persist(parsedData);
         } else {
           console.log("No parsed data to upload");
         }
         resolve("done importing");
       });
+  });
+};
+const persist = (data: any[]) => {
+  data.forEach((item) => {
+    console.log(item);
   });
 };
