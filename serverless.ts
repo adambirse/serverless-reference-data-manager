@@ -5,7 +5,6 @@ import hello from "./src/functions/hello";
 import items from "./src/functions/items";
 import s3EventHandler from "./src/functions/S3EventHandler";
 
-
 const serverlessConfiguration: AWS = {
   service: "reference-data-manager",
   frameworkVersion: "3",
@@ -14,6 +13,7 @@ const serverlessConfiguration: AWS = {
     name: "aws",
     region: "eu-west-1",
     runtime: "nodejs14.x",
+    timeout: 30,
     apiGateway: {
       minimumCompressionSize: 1024,
       shouldStartNameWithService: true,
@@ -38,6 +38,11 @@ const serverlessConfiguration: AWS = {
               "dynamodb:DeleteItem",
             ],
             Resource: [{ "Fn::GetAtt": ["ResourceTable", "Arn"] }],
+          },
+          {
+            Effect: "Allow",
+            Action: ["s3:GetObject"],
+            Resource: "arn:aws:s3:::rdm-unique-bucket-name/*",
           },
         ],
       },

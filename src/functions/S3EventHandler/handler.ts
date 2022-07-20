@@ -1,40 +1,35 @@
-import { formatJSONResponse } from "@libs/api-gateway";
 import { middyfy } from "@libs/lambda";
+var AWS = require("aws-sdk");
+
 import { S3Event } from "aws-lambda";
-import * as AWS from "aws-sdk";
+
+const s3 = new AWS.S3({});
 
 const s3EventHandler = async (event: S3Event) => {
-  console.log(
-    `File uploaded, do your thang with event ${JSON.stringify(event)}`
-  );
-
   for (const record of event.Records) {
-    const key: string = record.s3.object.key;
-    console.log(" File name -->  ", key);
-    console.log(record);
+    await handle(record);
   }
-
-  //TODO process CSV and call insertData (fast-csv looks good)
-  var ddb = new AWS.DynamoDB({ apiVersion: "2012-08-10" });
-
-  await insertData(ddb, "ItemY", "value1", "value2");
-
-  return formatJSONResponse({
-    message: `S3 event handler invoked with ${event}`,
-  });
 };
 
-async function insertData(ddb, key, value1, value2) {
-  const putParams = {
-    TableName: process.env.RESOURCE_TABLE,
-    Item: {
-      id: { S: key },
-      ID1: { S: value1 },
-      ID2: { S: value2 },
-    },
+const handle = async (record) => {
+  const key = decodeURIComponent(record.s3.object.key.replace(/\+/g, " "));
+  const bucketName = record.s3.bucket.name;
+
+  console.log(" File name -->  ", key);
+  console.log(`Bucket: ${bucketName}`);
+
+  const params = {
+    Bucket: bucketName,
+    Key: key,
   };
 
-  await ddb.putItem(putParams).promise();
-}
+  try {
+    console.log(`getting data from s3 bucket ${bucketName} with key ${key}.`);
 
+    const { ContentType } = await s3.getObject(params).promise();
+    console.log("CONTENT TYPE:", ContentType);
+  } catch (err) {
+    console.log(err);
+  }
+};
 export const main = middyfy(s3EventHandler);

@@ -40,3 +40,7 @@ curl --request POST 'url/dev/items' \
     "name": "item1"
 }'
 ```
+
+### Upload file to S3
+
+    aws s3 cp data/test.csv s3://rdm-unique-bucket-name
