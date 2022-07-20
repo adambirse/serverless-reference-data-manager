@@ -41,6 +41,16 @@ curl --request POST 'url/dev/items' \
 }'
 ```
 
+### Removing deployment
+
+First delete S3 bucket contents (remove will fail otherwise)
+
+    aws s3 rm s3://rdm-unique-bucket-name --recursive
+
+then
+
+    sls remove
+
 ### Upload file to S3
 
     aws s3 cp data/test.csv s3://rdm-unique-bucket-name
