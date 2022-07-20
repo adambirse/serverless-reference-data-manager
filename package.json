@@ -10,6 +10,7 @@
     "node": ">=14.15.0"
   },
   "dependencies": {
+    "@fast-csv/parse": "^4.3.6",
     "@middy/core": "^2.5.3",
     "@middy/http-json-body-parser": "^2.5.3"
   },

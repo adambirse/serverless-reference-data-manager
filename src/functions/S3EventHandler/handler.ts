@@ -2,6 +2,8 @@ import { middyfy } from "@libs/lambda";
 import S3 from "aws-sdk/clients/s3";
 
 import { S3Event } from "aws-lambda";
+import * as csv from "@fast-csv/parse";
+import { Readable } from "stream";
 
 const s3: S3 = new S3({ apiVersion: "2006-03-01", region: "eu-west-1" });
 
@@ -26,10 +28,37 @@ const handle = async (record) => {
   try {
     console.log(`getting data from s3 bucket ${bucketName} with key ${key}.`);
 
-    const { ContentType } = await s3.getObject(params).promise();
-    console.log("CONTENT TYPE:", ContentType);
+    const stream = await s3.getObject(params).createReadStream();
+    console.log(`Stream: ${stream}`);
+    await parseCSV(stream);
   } catch (err) {
     console.log(err);
   }
 };
+
 export const main = middyfy(s3EventHandler);
+
+const parseCSV = async (csvStream: Readable) => {
+  return new Promise((resolve, reject) => {
+    const parsedData = [];
+    csvStream
+      .pipe(csv.parse({ headers: false, delimiter: "," }))
+      .on("error", function (data) {
+        console.error(`Got an error: ${data}`);
+        reject("Error parsing \n" + data);
+      })
+      .on("data", (data) => {
+        console.log("data received");
+        parsedData.push(data);
+      })
+      .on("end", async () => {
+        if (parsedData.length > 0) {
+          console.log("Data received");
+          console.log(parsedData);
+        } else {
+          console.log("No parsed data to upload");
+        }
+        resolve("done importing");
+      });
+  });
+};
