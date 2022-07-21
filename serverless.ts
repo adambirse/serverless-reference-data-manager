@@ -1,7 +1,6 @@
 import type { AWS } from "@serverless/typescript";
 import dynamoDbTables from "./resources/dynamodb-tables";
 
-import hello from "./src/functions/hello";
 import items from "./src/functions/items";
 import s3EventHandler from "./src/functions/S3EventHandler";
 
@@ -49,7 +48,7 @@ const serverlessConfiguration: AWS = {
     },
   },
   // import the function via paths
-  functions: { hello, items, s3EventHandler },
+  functions: { items, s3EventHandler },
   resources: {
     Resources: {
       ...dynamoDbTables,
